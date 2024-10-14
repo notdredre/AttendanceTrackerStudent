@@ -1,18 +1,14 @@
 package dev.kwasi.echoservercomplete.chatlist
 
-import android.annotation.SuppressLint
-import android.net.wifi.p2p.WifiP2pDevice
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import dev.kwasi.echoservercomplete.R
 import dev.kwasi.echoservercomplete.models.ContentModel
-import dev.kwasi.echoservercomplete.peerlist.PeerListAdapter
+import dev.kwasi.echoservercomplete.R
 
 class ChatListAdapter : RecyclerView.Adapter<ChatListAdapter.ViewHolder>(){
     private val chatList:MutableList<ContentModel> = mutableListOf()

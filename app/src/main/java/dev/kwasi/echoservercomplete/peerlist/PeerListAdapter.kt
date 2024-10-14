@@ -5,6 +5,7 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import dev.kwasi.echoservercomplete.R
@@ -15,6 +16,7 @@ class PeerListAdapter(private val iFaceImpl:PeerListAdapterInterface): RecyclerV
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
         val descriptionTextView: TextView = itemView.findViewById(R.id.descriptionTextView)
+        val joinButton: Button = itemView.findViewById(R.id.joinClassButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,7 +30,7 @@ class PeerListAdapter(private val iFaceImpl:PeerListAdapterInterface): RecyclerV
         holder.titleTextView.text = peer.deviceName
         holder.descriptionTextView.text = peer.deviceAddress
 
-        holder.itemView.setOnClickListener {
+        holder.joinButton.setOnClickListener {
             iFaceImpl.onPeerClicked(peer)
         }
     }

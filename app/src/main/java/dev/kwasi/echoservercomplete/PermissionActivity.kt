@@ -91,6 +91,7 @@ class PermissionActivity : AppCompatActivity() {
         val i = Intent(this,CommunicationActivity::class.java)
         i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         startActivity(i)
+        finish()
     }
 
 

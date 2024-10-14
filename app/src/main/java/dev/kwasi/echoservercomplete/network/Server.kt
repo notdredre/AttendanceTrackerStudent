@@ -24,6 +24,8 @@ class Server(private val iFaceImpl:NetworkMessageInterface) {
     init {
         thread{
             while(true){
+                if (svrSocket.isClosed)
+                    return@thread
                 try{
                     val clientConnectionSocket = svrSocket.accept()
                     Log.e("SERVER", "The server has accepted a connection: ")

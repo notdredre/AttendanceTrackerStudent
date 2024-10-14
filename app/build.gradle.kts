@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "dev.kwasi.echoservercomplete"
+        applicationId = "com.example.attendancetrackerstudent"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

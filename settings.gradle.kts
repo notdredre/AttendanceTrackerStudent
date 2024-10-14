@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "EchoServerComplete"
+rootProject.name = "AttendanceTrackerStudent"
 include(":app")
  
