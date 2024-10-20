@@ -7,9 +7,12 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pGroup
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -17,6 +20,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet.Layout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +55,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
     private var server: Server? = null
     private var client: Client? = null
     private var deviceIp: String = ""
+    private var studentID: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -136,20 +141,22 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
             toast.show()
             return
         }
-        val studentID = studentIDET.text.toString().toInt()
-        if (studentID >= 816000000) {
-            wfdManager?.discoverPeers()
-            val classSearchView: ConstraintLayout = findViewById(R.id.searchingClasses)
-            if (!hasDevices)
-                classSearchView.visibility = View.VISIBLE
-            else {
-                classSearchView.visibility = View.GONE
-                val toast = Toast.makeText(
-                    this,
-                    "Updating list of nearby class groups...",
-                    Toast.LENGTH_SHORT
-                )
-                toast.show()
+        if (studentIDET.text.length <= 9) {
+            studentID = studentIDET.text.toString().toInt()
+            if (studentID in 816000000..816999999) {
+                wfdManager?.discoverPeers()
+                val classSearchView: ConstraintLayout = findViewById(R.id.searchingClasses)
+                if (!hasDevices)
+                    classSearchView.visibility = View.VISIBLE
+                else {
+                    classSearchView.visibility = View.GONE
+                    val toast = Toast.makeText(
+                        this,
+                        "Updating list of nearby class groups...",
+                        Toast.LENGTH_SHORT
+                    )
+                    toast.show()
+                }
             }
         }
         else {
@@ -192,7 +199,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         val etString = etMessage.text.toString()
         val content = ContentModel(etString, deviceIp)
         etMessage.text.clear()
-        client?.sendMessage(content)
+        client?.sendMessageEncrypted(etString)
         chatListAdapter?.addItemToEnd(content)
 
     }
@@ -214,6 +221,7 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
     override fun onPeerListUpdated(deviceList: Collection<WifiP2pDevice>) {
         val toast = Toast.makeText(this, "Updated listing of nearby WiFi Direct devices", Toast.LENGTH_SHORT)
         //toast.show()
+
         hasDevices = deviceList.isNotEmpty()
         peerListAdapter?.updateList(deviceList)
         updateUI()
@@ -229,6 +237,8 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
         //toast.show()
         wfdHasConnection = groupInfo != null
 
+        Log.i("Network", "groupInfo is $groupInfo")
+
         if (groupInfo == null){
             server?.close()
             client?.close()
@@ -237,10 +247,23 @@ class CommunicationActivity : AppCompatActivity(), WifiDirectInterface, PeerList
             deviceIp = "192.168.49.1"
             Log.i("Network", "I am the server")
         } else if (!groupInfo.isGroupOwner && client == null) {
-            client = Client(this)
+            client = Client(this, studentID) { auth ->
+                if (!auth) {
+                    Looper.prepare()
+                    val unauthToast = Toast.makeText(
+                        this,
+                        "You are not registered for this class. Please contact the lecturer responsible if you believe this is a mistake.",
+                        Toast.LENGTH_LONG
+                    )
+                    unauthToast.show()
+                    wfdManager?.disconnect()
+                }
+            }
             deviceIp = client!!.ip
-            Log.i("Network", "I am the client")
         }
+        Log.i("Network", "The server is $server")
+        Log.i("Network", "Device ip is $deviceIp")
+        updateUI()
     }
 
     override fun onDeviceStatusChanged(thisDevice: WifiP2pDevice) {
